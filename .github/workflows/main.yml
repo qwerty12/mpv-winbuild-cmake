@@ -114,6 +114,14 @@ jobs:
           if $BUILD_32BIT; then rm -rf build32/mpv-debug*; ninja -C build32 mpv-packaging; mv build32/mpv*.7z release; fi
           if $BUILD_64BIT; then rm -rf build64/mpv-debug*; ninja -C build64 mpv-packaging; mv build64/mpv*.7z release; fi
 
+      - name: Copying ffmpeg
+        id: copying_ffmpeg
+        if: ${{ steps.build_toolchain.outcome == 'success' && steps.packaging_mpv.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          if $BUILD_32BIT; then mv build32/install/mingw/bin/ffmpeg.exe release/ffmpeg_x86.exe; fi
+          if $BUILD_64BIT; then mv build64/install/mingw/bin/ffmpeg.exe release/ffmpeg_x64.exe; fi
+
       - name: Uploading packages to Sourceforge
         id: upload_packages_sf
         if: ${{ steps.packaging_mpv.outcome == 'success' && github.event.inputs.sourceforge == 'true' }}
@@ -149,7 +157,7 @@ jobs:
           }
           END
           )
-          for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
+          for file in release/*; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Collecting logs
         id: collect_logs
