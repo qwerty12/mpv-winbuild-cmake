@@ -16,7 +16,7 @@ endif()
 set(EXPORT
     "CROSS=${TARGET_ARCH}-
     TARGET_SYS=Windows
-    BUILDMODE=static
+    BUILDMODE=dynamic
     FILE_T=luajit.exe
     CFLAGS='-DUNICODE'
     XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT ${DISABLE_JIT}'
@@ -52,6 +52,10 @@ ExternalProject_Add(luajit
 ExternalProject_Add_Step(luajit install-pc
     DEPENDEES install
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/luajit.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/luajit.pc
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/lua51.dll ${MINGW_INSTALL_PREFIX}/bin/lua51.dll
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/luajit.exe ${MINGW_INSTALL_PREFIX}/bin/luajit.exe
+    # Not the right way to get a program looking for a static lib to link to a dynamic one
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/libluajit-5.1.dll.a ${MINGW_INSTALL_PREFIX}/lib/libluajit-5.1.a
 )
 
 force_rebuild_git(luajit)

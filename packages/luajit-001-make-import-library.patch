@@ -1,0 +1,46 @@
+From a9d04fc0ff4b54f36221ed853c3d8592f3e64a8e Mon Sep 17 00:00:00 2001
+From: Faheem Pervez <trippin1@gmail.com>
+Date: Sun, 24 Apr 2022 19:39:27 +0100
+Subject: [PATCH 1/1] 
+ https://github.com/msys2/MINGW-packages/blob/master/mingw-w64-luajit/001-make-import-library.patch
+
+---
+ src/Makefile | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index 68a9a7cd..8378a525 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -546,6 +546,7 @@ ALL_RM= $(ALL_T) $(ALL_GEN) *.o host/*.o $(WIN_RM)
+ 
+ # Mixed mode defaults.
+ TARGET_O= lj_init.o $(LUAJIT_A)
++TARGET_LO= $(TARGET_O)
+ TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)
+ TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_SO)
+ 
+@@ -602,6 +603,11 @@ ifeq (dynamic,$(BUILDMODE))
+   TARGET_DYNCC= @:
+   LJVMCORE_DYNO= $(LJVMCORE_O)
+   TARGET_O= $(LUAJIT_SO)
++  ifeq (Windows,$(TARGET_SYS))
++    TARGET_LO= $(TARGET_DLLDOTANAME)
++  else
++    TARGET_LO= $(TARGET_O)
++  endif
+   TARGET_XLDFLAGS+= $(TARGET_DYNXLDOPTS)
+ else
+ ifeq (Darwin,$(TARGET_SYS))
+@@ -738,7 +744,7 @@ $(LUAJIT_SO): $(LJVMCORE_O)
+ 
+ $(LUAJIT_T): $(TARGET_O) $(LUAJIT_O) $(TARGET_DEP)
+ 	$(E) "LINK      $@"
+-	$(Q)$(TARGET_LD) $(TARGET_ALDFLAGS) -o $@ $(LUAJIT_O) $(TARGET_O) $(TARGET_ALIBS)
++	$(Q)$(TARGET_LD) $(TARGET_ALDFLAGS) -o $@ $(LUAJIT_O) $(TARGET_LO) $(TARGET_ALIBS)
+ 	$(Q)$(TARGET_STRIP) $@
+ 	$(E) "OK        Successfully built LuaJIT"
+ 
+-- 
+2.36.0.windows.1
+
