@@ -28,6 +28,7 @@ ExternalProject_Add(ffmpeg
         ${ffmpeg_x265}
         xvidcore
         libxml2
+        frei0r
         libvpl
         libopenmpt
         libjxl
