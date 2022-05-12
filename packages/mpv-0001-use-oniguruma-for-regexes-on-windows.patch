@@ -1,0 +1,73 @@
+From 46cf7041461deaa217393d5ea152d801d6986c79 Mon Sep 17 00:00:00 2001
+From: Faheem Pervez <trippin1@gmail.com>
+Date: Wed, 17 Aug 2022 10:09:59 +0100
+Subject: [PATCH] Use oniguruma for regexes on Windows
+
+---
+ meson.build        | 7 +++++++
+ meson_options.txt  | 1 +
+ sub/filter_regex.c | 6 ++++++
+ sub/sd_ass.c       | 2 +-
+ 4 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index f9fe4e7..3f9efb0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -727,6 +727,13 @@ if features['stdatomic']
+     dependencies += stdatomic_dep
+ endif
+ 
++oniguruma = dependency('oniguruma', required: get_option('oniguruma'))
++features += {'oniguruma': oniguruma.found()}
++if features['oniguruma']
++    dependencies += oniguruma
++    sources += files('sub/filter_regex.c')
++endif
++
+ uchardet_opt = get_option('uchardet').require(
+     features['iconv'],
+     error_message: 'iconv was not found!',
+diff --git a/meson_options.txt b/meson_options.txt
+index 5f2d31d..4c13ada 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -32,6 +32,7 @@ option('sdl2', type: 'feature', value: 'disabled', description: 'SDL2')
+ option('sdl2-gamepad', type: 'feature', value: 'auto', description: 'SDL2 gamepad input')
+ option('stdatomic', type: 'feature', value: 'auto', description: 'C11 stdatomic.h')
+ option('uchardet', type: 'feature', value: 'auto', description: 'uchardet support')
++option('oniguruma', type: 'feature', value: 'disabled', description: 'use oniguruma for regexes')
+ option('uwp', type: 'feature', value: 'disabled', description: 'Universal Windows Platform')
+ option('vapoursynth', type: 'feature', value: 'auto', description: 'VapourSynth filter bridge')
+ option('vector', type: 'feature', value: 'auto', description: 'GCC vector instructions')
+diff --git a/sub/filter_regex.c b/sub/filter_regex.c
+index 8e29991..422cca5 100644
+--- a/sub/filter_regex.c
++++ b/sub/filter_regex.c
+@@ -1,4 +1,10 @@
++#include "config.h"
++#if HAVE_ONIGURUMA
++#define ONIG_STATIC
++#include <onigposix.h>
++#else
+ #include <regex.h>
++#endif
+ #include <sys/types.h>
+ 
+ #include "common/common.h"
+diff --git a/sub/sd_ass.c b/sub/sd_ass.c
+index e4e5652..f778ca4 100644
+--- a/sub/sd_ass.c
++++ b/sub/sd_ass.c
+@@ -67,7 +67,7 @@ static void fill_plaintext(struct sd *sd, double pts);
+ static const struct sd_filter_functions *const filters[] = {
+     // Note: list order defines filter order.
+     &sd_filter_sdh,
+-#if HAVE_POSIX
++#if HAVE_POSIX || HAVE_ONIGURUMA
+     &sd_filter_regex,
+ #endif
+ #if HAVE_JAVASCRIPT
+-- 
+2.41.0.windows.2
+

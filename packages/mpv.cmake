@@ -15,6 +15,7 @@ ExternalProject_Add(mpv
         luasocket
         rubberband
         uchardet
+        oniguruma
         openal-soft
         mujs
         vulkan
@@ -47,6 +48,7 @@ ExternalProject_Add(mpv
         -Dlibbluray=enabled
         -Ddvdnav=enabled
         -Duchardet=enabled
+        -Doniguruma=enabled
         -Drubberband=enabled
         -Dlcms2=enabled
         -Dopenal=enabled
