@@ -46,6 +46,7 @@ list(APPEND ep
     libunibreak
     libass
     libvpl
+    fdka
     amf-headers
     avisynth-headers
     nvcodec-headers

@@ -30,6 +30,7 @@ ExternalProject_Add(ffmpeg
         libxml2
         frei0r
         libvpl
+        fdka
         libopenmpt
         libjxl
         shaderc
@@ -66,6 +67,7 @@ ExternalProject_Add(ffmpeg
         --enable-libass
         --enable-libbluray
         --enable-libfreetype
+        --enable-libfdk-aac-dlopen
         --enable-libfribidi
         --enable-libfontconfig
         --enable-libharfbuzz
